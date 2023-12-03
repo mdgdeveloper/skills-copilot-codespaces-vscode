@@ -1,22 +1,70 @@
 // Create a web server
 
-var http = require("http");
-var fs = require("fs");
+const express = require('express');
+const router = express.Router();
 
-http.createServer(function(req, res) {
-  if (req.url === "/") {
-    fs.createReadStream(__dirname + "/index.htm").pipe(res);
-  } else if (req.url === "/api") {
-    res.writeHead(200, { "Content-Type": "application/json" });
-    var obj = {
-      firstname: "John",
-      lastname: "Doe"
-    };
-    res.end(JSON.stringify(obj));
-  } else {
-    res.writeHead(404);
-    res.end();
-  }
-}).listen(1337);
+const Comment = require('../models/comment');
 
+// POST /comments
+// Create a new comment
+router.post('/', function(req, res, next) {
+  const comment = new Comment({
+    name: req.body.name,
+    email: req.body.email,
+    message: req.body.message,
+    timestamp: Date.now()
+  });
 
+  comment.save(function(err, comment) {
+    if (err) {
+      return next(err);
+    }
+    res.status(201);
+    res.json(comment);
+  });
+});
+
+// GET /comments
+// Get a list of comments
+router.get('/', function(req, res, next) {
+  Comment.find({}, function(err, comments) {
+    if (err) {
+      return next(err);
+    }
+    res.json(comments);
+  });
+});
+
+// GET /comments/:id
+// Get a single comment
+router.get('/:id', function(req, res, next) {
+  Comment.findById(req.params.id, function(err, comment) {
+    if (err) {
+      return next(err);
+    }
+    if (!comment) {
+      return res.status(404).json({
+        message: 'Comment not found'
+      });
+    }
+    res.json(comment);
+  });
+});
+
+// DELETE /comments/:id
+// Delete a comment
+router.delete('/:id', function(req, res, next) {
+  Comment.findByIdAndRemove(req.params.id, function(err, comment) {
+    if (err) {
+      return next(err);
+    }
+    if (!comment) {
+      return res.status(404).json({
+        message: 'Comment not found'
+      });
+    }
+    res.json(comment);
+  });
+});
+
+module.exports = router;
