@@ -6,6 +6,7 @@ import random
 OPTIONS = ["paper","rock","scissors"]
 player_score = 0
 computer_score = 0
+rounds = 0
 
 # The game is in rounds and the player can select by the end of the round if he wants to continue or not
 # The game ends when the player decides to stop playing
@@ -30,6 +31,8 @@ def main():
 def updateScore(player, computer):
     global player_score
     global computer_score
+    global rounds
+    rounds += 1
     if player == computer:
         print("It's a tie")
     elif player == 1 and computer == 2:
@@ -80,6 +83,7 @@ def play_game():
         # Show the score
         print("Player score: ", player_score)
         print("Computer score: ", computer_score)
+        print("Total rounds: ", rounds)
         exit()
     else:
         print("Invalid choice. Please select a valid option")
